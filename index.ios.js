@@ -7,7 +7,8 @@ import {
   Image
 } from 'react-native';
 
-import Summary from './Components/Summary.js';
+import SwellSummary from './Components/SwellSummary.js';
+import WindSummary from './Components/WindSummary.js';
 
 export default class ProjectBrandon extends Component {
 
@@ -31,15 +32,20 @@ export default class ProjectBrandon extends Component {
         var forecast = JSON.parse(request.response)
         var timestamp = forecast[0].timestamp
         var maxBreakingHeight = forecast[0].swell.maxBreakingHeight
+        var minBreakingHeight = forecast[0].swell.minBreakingHeight
+        var windDirection = forecast[0].wind.direction
+        var windSpeed = forecast[0].wind.speed
 
         this.setState({
-            forecast: {
-              timestamp: timestamp,
-              swell : maxBreakingHeight
-            }
-        });
+          forecast: {
+            maxBreakingHeight : maxBreakingHeight,
+            minBreakingHeight : minBreakingHeight,
+            windDirection: windDirection,
+            windSpeed: windSpeed
 
-        console.log(this.state);
+          },
+          lastupdated : Date.now()
+        });
 
       } else {
         console.warn('error', request.responseText);
@@ -53,9 +59,6 @@ export default class ProjectBrandon extends Component {
 
   render() {
 
-    let swellHeight = this.state.forecast.swell ? this.state.forecast.swell : '';
-    let swellIntroPhrase = "Swell is ";
-
     return (
 
       <View>
@@ -65,18 +68,11 @@ export default class ProjectBrandon extends Component {
           </View>
 
           <View style={styles.copycontainer}>
-            <Text style={styles.location}>
-              Brandon Bay
-            </Text>
 
+            <Text style={styles.location}>Brandon Bay</Text>
             <View style = {styles.breaker}></View>
-
-            <Text style={styles.forecast}>
-            {swellIntroPhrase}
-              <Text style={{fontWeight: 'bold'}}>
-              {swellHeight}ft.
-              </Text>
-            </Text>
+            <SwellSummary items={[this.state.forecast.minBreakingHeight, this.state.forecast.maxBreakingHeight]}></SwellSummary>
+            <WindSummary items={[this.state.forecast.windSpeed, this.state.forecast.windDirection]}></WindSummary>
           </View>
 
       </View>
@@ -116,12 +112,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight : '200',
     letterSpacing : -.5,
-  },
-  forecast: {
-    fontSize: 42,
-    fontWeight : '200',
-    marginTop: 30,
-    color: 'white',
   },
   breaker : {
     width : 30,
